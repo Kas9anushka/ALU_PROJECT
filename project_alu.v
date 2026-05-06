@@ -71,24 +71,26 @@ always @(posedge clk,posedge rst)begin
        
        1: begin
           case(cmd)
-              0: begin if(inp_valid==2'b11)
+              0: begin if(inp_valid==2'b11)begin
                           {temp_cout,temp_res[width-1:0]}<=opa+opb;
-                       else 
+                          temp_res<=opa+opb;
+                       end else 
                           temp_err<=1;
                  end
               1: begin if(inp_valid==2'b11)begin
-                         temp_res[width-1:0]<=opa-opb;
+                         temp_res<=opa-opb;
                          temp_oflow<=opb>opa;
                        end else  
                           temp_err<=1;
                  end 
-              2: begin if(inp_valid==2'b11)
+              2: begin if(inp_valid==2'b11)begin
                           {temp_cout,temp_res[width-1:0]}<=opa+opb+cin;
-                       else
+                          temp_res<=opa+opb+cin;
+                     end  else
                           temp_err<=1;
                  end 
               3: begin if(inp_valid==2'b11)begin
-                          temp_res[width-1:0]<=opa-opb-cin;
+                          temp_res<=opa-opb-cin;
                           temp_oflow <= (opa<(opb+cin))? 1:0;                         
                        end else                         
                           temp_err<=1;
@@ -133,190 +135,106 @@ always @(posedge clk,posedge rst)begin
                            if(count == 0) begin
                               temp_mul <= (opa<<1)*opb;
                               temp_res <= {2*width{1'bx}};                                                           
-                           end
-                       else if(count == 1) begin
+                        end else if(count == 1)
                               temp_res<=temp_mul;
-                        end
-                     end 
+                     end else
+                         temp_err<=1; 
                   end    
               11: begin if(inp_valid==2'b11)begin
-                        temp_res[width-1:0]<= next_res;
-                        
-                        temp_oflow <= next_overflow;
-                        
-                        end
-                      else begin
-                        
-                        temp_err<=1;
-                       
-                        end
-                   end     
-                        
-                                    
+                            temp_res<= next_res;                      
+                            temp_oflow <= next_overflow;                        
+                        end else                       
+                            temp_err<=1;
+                  end                                                                 
               12: begin if(inp_valid==2'b11)begin
-                        temp_res[width-1:0]<= next_res;
-                       
-                        temp_oflow <= next_overflow;
-                        
-                        end
-                      else begin
-                        
-                        temp_err<=1;
-                        
-                        end
-                   end     
-              default: begin  
-                           temp_err<=1;
-                          
-                        end
-           endcase
-       
+                           temp_res<= next_res;                      
+                           temp_oflow <= next_overflow;                                              
+                       end else                       
+                           temp_err<=1;                                           
+                  end     
+              default:  temp_err<=1;
+           endcase       
        end
        0: begin
-          case(cmd)
-          
-              0: begin if(inp_valid==2'b11)begin
-                          temp_res[width-1:0]<=opa & opb;
-                          
-                       end else begin
-                         
-                          temp_err<=1;
-                        
-                       end
+          case(cmd)          
+              0: begin if(inp_valid==2'b11)
+                          temp_res[width-1:0]<=opa & opb;                         
+                       else                         
+                          temp_err<=1;                       
                  end
-              1: begin if(inp_valid==2'b11)begin
+              1: begin if(inp_valid==2'b11)
                           temp_res[width-1:0]<=~(opa & opb);
-                          
-                       end else begin
-                          
+                       else                         
                           temp_err<=1;
-                          
-                       end
                  end
-              2: begin if(inp_valid==2'b11)begin
-                          temp_res[width-1:0]<=opa | opb;
-                          
-                       end else begin
-                          
+              2: begin if(inp_valid==2'b11)
+                          temp_res[width-1:0]<=opa | opb;                         
+                       else                        
                           temp_err<=1;
-                         
-                       end
                  end
-              3: begin if(inp_valid==2'b11)begin
-                          temp_res[width-1:0]<=~(opa | opb);
-                          
-                       end else begin
-                          
+              3: begin if(inp_valid==2'b11)
+                          temp_res[width-1:0]<=~(opa | opb);                         
+                       else                         
                           temp_err<=1;
-                          
-                       end
                  end
-              4: begin if(inp_valid==2'b11)begin
-                          temp_res[width-1:0]<=opa^opb;
-                          
-                       end else begin
-                          
+              4: begin if(inp_valid==2'b11)
+                          temp_res[width-1:0]<=opa^opb;                         
+                       else                          
                           temp_err<=1;
-                          
-                       end
                  end
-              5: begin if(inp_valid==2'b11)begin
+              5: begin if(inp_valid==2'b11)
                           temp_res[width-1:0]<=~(opa^opb);
-                         
-                       end else begin
-                          
+                       else                          
+                          temp_err<=1;                        
+                 end
+              6: begin if(inp_valid[0]==1)
+                          temp_res[width-1:0]<=~opa;                          
+                       else                        
+                          temp_err<=1;
+                 end
+              7: begin if(inp_valid[1]==1)
+                          temp_res[width-1:0]<=~opb;                         
+                       else                         
+                          temp_err<=1;
+                 end
+              8: begin if(inp_valid[0]==1)
+                          temp_res[width-1:0]<=opa>>1;                        
+                       else                         
+                          temp_err<=1;                                               
+                 end
+              9: begin if(inp_valid[0]==1)
+                          temp_res[width-1:0]<=opa<<1;                         
+                       else                          
+                          temp_err<=1;
+                 end
+              10: begin if(inp_valid[1]==1)
+                          temp_res[width-1:0]<=opb>>1;                       
+                       else                         
                           temp_err<=1; 
-                       end
-                         
                  end
-              6: begin if(inp_valid[0]==1)begin
-                          temp_res[width-1:0]<=~opa;
-                          
-                       end else begin
-                         
-                          temp_err<=1;
-                          
-                       end
-                 end
-              7: begin if(inp_valid[1]==1)begin
-                          temp_res[width-1:0]<=~opb;
-                          
-                       end else begin
-                          
-                          temp_err<=1;
-                         
-                       end
-                 end
-              8: begin if(inp_valid[0]==1)begin
-                          temp_res[width-1:0]<=opa>>1;
-                          
-                       end else begin
-                          
-                          temp_err<=1;
-                          
-                       end
-                 end
-              9: begin if(inp_valid[0]==1)begin
-                          temp_res[width-1:0]<=opa<<1;
-                         
-                       end else begin
-                          
-                          temp_err<=1;
-                          
-                       end
-                 end
-              10: begin if(inp_valid[1]==1)begin
-                          temp_res[width-1:0]<=opb>>1;
-                         
-                       end else begin
-                         
-                          temp_err<=1;
-                         
-                       end
-                 end
-              11: begin if(inp_valid[1]==1)begin
+              11: begin if(inp_valid[1]==1)
                           temp_res[width-1:0]<=opb<<1;
-                          
-                       end else begin
-
+                        else 
                           temp_err<=1;
-                          
-                       end
                  end
               12: begin if(inp_valid==2'b11) begin
-                             temp_err<=(|opb[width-1:4])? 1'b1: 1'b0;  
+                            temp_err<=(|opb[width-1:4])? 1'b1: 1'b0;  
                             shift_amt<=$clog2(opb);
-                            temp_res<={opa<<shift_amt | opa>>(width-shift_amt)};
-                            
-                         end
-                         else begin
-                              
+                            temp_res<={opa<<shift_amt | opa>>(width-shift_amt)};                                                   
+                        end else                               
                               temp_err<=1;
-                         end
                   end
               13: begin if(inp_valid==2'b11) begin
                              temp_err<=(|opb[width-1:4])? 1'b1: 1'b0;
                              shift_amt<=$clog2(opb);
-                             temp_res <= (opa >> shift_amt) | (opa << (width - shift_amt));
-                             
-                         end
-                         else begin
-                              
+                             temp_res <= (opa >> shift_amt) | (opa << (width - shift_amt));                           
+                        end else                             
                               temp_err<=1;
-                         end
                   end  
-              default: begin 
-                           
-                           temp_err<=1;
-                           
-                        end
+              default: temp_err<=1;
            endcase
          end  
-        default: begin 
-                       
-                        temp_err<=1;
-                        
-                  end
+        default: temp_err<=1;
         endcase
       end
     else begin
